@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Audio Player</title>
+
+<!-- SEO meta tags (will be updated dynamically) -->
+<meta property="og:image" content="">
+<meta name="twitter:image" content="">
+<meta name="description" content="Listen to live audio streaming.">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<style>
+  .player-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background: rgba(26,26,26,0.9);
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    text-align: center;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .player-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  .player-content { position: relative; z-index: 1; }
+
+  .player-btn {
+    cursor: pointer;
+    font-size: 1.5rem;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+  }
+
+  .player-btn:hover { color: #ff4d4d; transform: scale(1.2); }
+
+  .progress-container {
+    width: 100%; height: 5px;
+    background: #444;
+    border-radius: 5px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+
+  .progress { width: 0%; height: 100%; background: #ff4d4d; transition: width 0.1s linear; }
+</style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+
+<div class="player-container">
+  <div class="player-bg" id="playerBg"></div>
+  <div class="player-content">
+    <h2 class="mb-4 text-xl font-semibold">Live Audio Stream</h2>
+
+    <audio id="liveAudio" preload="none">
+      <source src="https://listen.moe/opus" type="audio/ogg">
+      Your browser does not support the audio element.
+    </audio>
+
+    <div class="mb-4">
+      <span class="player-btn" id="playBtn">&#9658;</span>
+      <span class="player-btn" id="pauseBtn">&#10074;&#10074;</span>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress" id="progressBar"></div>
+    </div>
+
+    <div id="status" class="text-sm">Paused</div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+  const audio = $("#liveAudio")[0];
+  const progressBar = $("#progressBar");
+  const statusText = $("#status");
+  const playerBg = $("#playerBg");
+
+  // Fetch random image from Nekos API
+  fetch("https://api.nekosapi.com/v4/images/random")
+    .then(res => res.json())
+    .then(data => {
+      const imageUrl = data.url;
+      playerBg.css("background-image", `url(${imageUrl})`);
+      $('meta[property="og:image"]').attr('content', imageUrl);
+      $('meta[name="twitter:image"]').attr('content', imageUrl);
+    })
+    .catch(() => {
+      // fallback
+      const fallback = "https://via.placeholder.com/800x600?text=Live+Audio";
+      playerBg.css("background-image", `url(${fallback})`);
+      $('meta[property="og:image"]').attr('content', fallback);
+      $('meta[name="twitter:image"]').attr('content', fallback);
+    });
+
+  // Player controls
+  $("#playBtn").click(function(){ audio.play(); statusText.text("Playing..."); });
+  $("#pauseBtn").click(function(){ audio.pause(); statusText.text("Paused"); });
+
+  // Progress bar
+  audio.ontimeupdate = function(){
+    if(audio.duration){
+      let progressPercent = (audio.currentTime / audio.duration) * 100;
+      progressBar.css("width", progressPercent + "%");
+    } else {
+      // simulate live stream progress
+      progressBar.animate({width: "100%"}, 5000, "linear", function(){ $(this).css("width","0%"); });
+    }
+  };
+});
+</script>
+
+</body>
+      </html>
+      
