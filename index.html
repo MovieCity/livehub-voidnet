@@ -1,134 +1,241 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Audio Player</title>
-
-<!-- SEO meta tags (will be updated dynamically) -->
-<meta property="og:image" content="">
-<meta name="twitter:image" content="">
-<meta name="description" content="Listen to live audio streaming.">
-
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<style>
-  .player-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    background: rgba(26,26,26,0.9);
-    border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-    text-align: center;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .player-bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.15;
-    z-index: 0;
-  }
-
-  .player-content { position: relative; z-index: 1; }
-
-  .player-btn {
-    cursor: pointer;
-    font-size: 1.5rem;
-    margin: 0 10px;
-    transition: all 0.3s ease;
-  }
-
-  .player-btn:hover { color: #ff4d4d; transform: scale(1.2); }
-
-  .progress-container {
-    width: 100%; height: 5px;
-    background: #444;
-    border-radius: 5px;
-    margin: 20px 0;
-    overflow: hidden;
-  }
-
-  .progress { width: 0%; height: 100%; background: #ff4d4d; transition: width 0.1s linear; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sonyliv Channels</title>
+  <!-- Tailwind Play CDN for quick styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- JWPlayer CDN (user-provided library) -->
+  <script src="https://cdn.jwplayer.com/libraries/aVr2lJgW.js"></script>
+  <style>
+    /* Small custom tweaks to make it look "Next.js-modern" */
+    :root { --glass: rgba(255,255,255,0.06); }
+    body { background: linear-gradient(180deg,#0f172a 0%, #071024 100%); }
+    .card-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(2,6,23,0.6);} 
+    .channel-logo { image-rendering: -webkit-optimize-contrast; }
+  </style>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen">
-
-<div class="player-container">
-  <div class="player-bg" id="playerBg"></div>
-  <div class="player-content">
-    <h2 class="mb-4 text-xl font-semibold">Live Audio Stream</h2>
-
-    <audio id="liveAudio" preload="none">
-      <source src="https://listen.moe/opus" type="audio/ogg">
-      Your browser does not support the audio element.
-    </audio>
-
-    <div class="mb-4">
-      <span class="player-btn" id="playBtn">&#9658;</span>
-      <span class="player-btn" id="pauseBtn">&#10074;&#10074;</span>
+<body class="antialiased text-slate-200 min-h-screen">
+  <header class="bg-gradient-to-r from-sky-700 via-indigo-700 to-purple-700 p-4 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/10 rounded flex items-center justify-center text-2xl font-bold">S</div>
+        <div>
+          <h1 class="text-lg font-semibold leading-tight">Sonyliv Channels</h1>
+          <p class="text-xs text-white/70">Next.js-style responsive demo — Android + PC friendly</p>
+        </div>
+      </div>
+      <div class="ml-auto w-full sm:w-72">
+        <label class="relative block">
+          <span class="sr-only">Search channels</span>
+          <input id="search" class="placeholder:italic placeholder:text-slate-400 block bg-white/6 w-full border border-transparent focus:outline-none focus:border-sky-300 rounded-md py-2 pl-3 pr-10 text-sm text-white" placeholder="Search by title, genre or language..." />
+          <svg class="w-4 h-4 absolute right-3 top-2.5 text-white/70" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387-1.414 1.414-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" /></svg>
+        </label>
+      </div>
     </div>
+  </header>
 
-    <div class="progress-container">
-      <div class="progress" id="progressBar"></div>
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <section class="mb-6 flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-bold">Channels</h2>
+        <p class="text-sm text-white/70">Tap a channel to start streaming with JWPlayer (via proxy).</p>
+      </div>
+      <div class="flex gap-2 items-center">
+        <button id="sortBtn" class="bg-white/6 hover:bg-white/10 px-3 py-2 rounded text-sm">Sort A→Z</button>
+        <span id="count" class="text-sm text-white/60">Loading...</span>
+      </div>
+    </section>
+
+    <section>
+      <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+    </section>
+  </main>
+
+  <!-- Player modal -->
+  <div id="playerModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="w-full max-w-4xl bg-gradient-to-b from-slate-900/90 to-slate-800/90 rounded-lg overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between p-3">
+        <div class="flex items-center gap-3">
+          <img id="modalLogo" src="" alt="logo" class="w-10 h-10 object-contain rounded bg-white/5 p-1" />
+          <div>
+            <div id="modalTitle" class="font-semibold">Channel</div>
+            <div id="modalMeta" class="text-xs text-white/60">Genre • Language</div>
+          </div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <button id="popoutBtn" class="text-sm bg-white/6 px-3 py-1 rounded">Popout</button>
+          <button id="closeBtn" class="text-white bg-red-600 px-3 py-1 rounded">Close</button>
+        </div>
+      </div>
+      <div id="jwplayer-wrapper" class="bg-black">
+        <div id="jwplayer-player" style="width:100%;height:56.25vw;max-height:560px;min-height:240px;background:#000"></div>
+      </div>
     </div>
-
-    <div id="status" class="text-sm">Paused</div>
   </div>
-</div>
 
-<script>
-$(document).ready(function(){
-  const audio = $("#liveAudio")[0];
-  const progressBar = $("#progressBar");
-  const statusText = $("#status");
-  const playerBg = $("#playerBg");
+  <footer class="max-w-7xl mx-auto px-4 py-6 text-sm text-white/60">
+    <div class="flex items-center justify-between">
+      <div>Built with Tailwind • JWPlayer proxy</div>
+      <div>Note: stream tokens may expire — proxy used: <code class="text-xs">https://mini.allinonereborn.online/events/stream_proxy.php?url=</code></div>
+    </div>
+  </footer>
 
-  // Fetch random image from Nekos API
-  fetch("https://api.nekosapi.com/v4/images/random")
-    .then(res => res.json())
-    .then(data => {
-      const imageUrl = data.url;
-      playerBg.css("background-image", `url(${imageUrl})`);
-      $('meta[property="og:image"]').attr('content', imageUrl);
-      $('meta[name="twitter:image"]').attr('content', imageUrl);
-    })
-    .catch(() => {
-      // fallback
-      const fallback = "https://via.placeholder.com/800x600?text=Live+Audio";
-      playerBg.css("background-image", `url(${fallback})`);
-      $('meta[property="og:image"]').attr('content', fallback);
-      $('meta[name="twitter:image"]').attr('content', fallback);
+  <script>
+    // Configuration
+    const API_URL = 'https://allinonereborn.xyz/sony/yu.php';
+    const PROXY = 'https://mini.allinonereborn.online/events/stream_proxy.php?url='; // appended with encodeURIComponent(m3u8)
+
+    let channels = [];
+    let jwplayerInstance = null;
+
+    // Utility: create card DOM
+    function createCard(item) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'bg-white/3 p-3 rounded-lg card-hover transform transition-all duration-150';
+
+      wrapper.innerHTML = `
+        <div class="relative flex flex-col gap-2 h-full">
+          <div class="aspect-[16/9] bg-white/4 rounded overflow-hidden flex items-center justify-center">
+            <img src="${item.logo}" alt="${escapeHtml(item.title)}" class="w-full h-full object-contain channel-logo p-2" loading="lazy" onerror="this.style.objectFit='cover';this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 100\'%3E%3Crect width=\'100%\' height=\'100%\' fill=\'%23343a52\'/%3E%3Ctext x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ffffff\' font-size=\'12\'>No Image</text%3E%3C/svg%3E';" />
+            <button class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity" data-action="play" data-id="${item.id}">
+              <div class="bg-black/60 p-3 rounded-full">
+                <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </button>
+          </div>
+
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="font-medium leading-tight">${escapeHtml(item.title)}</div>
+              <div class="text-xs text-white/60">${escapeHtml(item.genre)} • ${escapeHtml(item.language)}</div>
+            </div>
+            <div class="text-xs text-white/60">HD</div>
+          </div>
+        </div>
+      `;
+
+      // attach click handler to play button inside wrapper
+      wrapper.querySelector('[data-action="play"]').addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const ch = channels.find(c => c.id === id);
+        if (ch) playChannel(ch);
+      });
+
+      return wrapper;
+    }
+
+    // Escape for injection safety
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&"'<>]/g, function (s) {
+        return ({'&':'&amp;','"':'&quot;','\'':'&#39;','<':'&lt;','>':'&gt;'})[s];
+      });
+    }
+
+    // Fetch channels and render
+    async function loadChannels() {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error('Network response not ok');
+        const data = await res.json();
+
+        channels = Object.values(data).map(ch => ({
+          id: ch.id,
+          title: ch.title,
+          logo: ch.logo,
+          genre: ch.genre || 'Unknown',
+          language: ch.language || 'Unknown',
+          m3u8: ch.m3u8
+        }));
+
+        renderGrid(channels);
+        document.getElementById('count').textContent = channels.length + ' channels';
+      } catch (err) {
+        console.error(err);
+        document.getElementById('count').textContent = 'Failed to load channels';
+        const grid = document.getElementById('grid');
+        grid.innerHTML = `<div class="p-4 text-sm text-white/60">Error loading API. If you see CORS errors, run this file from a server or enable CORS on the API.</div>`;
+      }
+    }
+
+    function renderGrid(list) {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      list.forEach(item => grid.appendChild(createCard(item)));
+    }
+
+    // Play channel in JWPlayer modal
+    function playChannel(channel) {
+      // Show modal
+      const modal = document.getElementById('playerModal');
+      document.getElementById('modalTitle').textContent = channel.title;
+      document.getElementById('modalMeta').textContent = `${channel.genre} • ${channel.language}`;
+      document.getElementById('modalLogo').src = channel.logo;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      // Build proxied URL
+      const file = PROXY + encodeURIComponent(channel.m3u8);
+
+      // Destroy previous instance if exists
+      try { if (jwplayerInstance) jwplayerInstance.remove(); } catch(e){ console.warn(e); }
+
+      // jwplayer setup. If your jwplayer library requires license/key you must include it.
+      jwplayerInstance = jwplayer('jwplayer-player');
+      jwplayerInstance.setup({
+        file,
+        image: channel.logo,
+        title: channel.title,
+        autostart: true,
+        width: '100%',
+        aspectratio: '16:9',
+        skin: { name: 'stormtrooper' }
+      });
+
+      // Popout (open original stream in a new tab)
+      document.getElementById('popoutBtn').onclick = () => {
+        window.open(file, '_blank');
+      };
+    }
+
+    // Close modal and stop player
+    function closePlayer() {
+      const modal = document.getElementById('playerModal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+      try { if (jwplayerInstance) jwplayerInstance.remove(); } catch(e){ console.warn(e); }
+    }
+
+    // Search & sort handlers
+    document.getElementById('search').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const filtered = channels.filter(c => (
+        c.title.toLowerCase().includes(q) || c.genre.toLowerCase().includes(q) || c.language.toLowerCase().includes(q)
+      ));
+      renderGrid(filtered);
+      document.getElementById('count').textContent = filtered.length + ' channels';
     });
 
-  // Player controls
-  $("#playBtn").click(function(){ audio.play(); statusText.text("Playing..."); });
-  $("#pauseBtn").click(function(){ audio.pause(); statusText.text("Paused"); });
+    let ascending = true;
+    document.getElementById('sortBtn').addEventListener('click', () => {
+      ascending = !ascending;
+      const sorted = channels.slice().sort((a,b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
+      document.getElementById('sortBtn').textContent = ascending ? 'Sort A→Z' : 'Sort Z→A';
+      renderGrid(sorted);
+    });
 
-  // Progress bar
-  audio.ontimeupdate = function(){
-    if(audio.duration){
-      let progressPercent = (audio.currentTime / audio.duration) * 100;
-      progressBar.css("width", progressPercent + "%");
-    } else {
-      // simulate live stream progress
-      progressBar.animate({width: "100%"}, 5000, "linear", function(){ $(this).css("width","0%"); });
-    }
-  };
-});
-</script>
+    document.getElementById('closeBtn').addEventListener('click', closePlayer);
+    // Close when clicking outside the player container
+    document.getElementById('playerModal').addEventListener('click', (ev) => {
+      if (ev.target.id === 'playerModal') closePlayer();
+    });
 
+    // Initial load
+    loadChannels();
+
+    // Helpful dev note: if you open this file locally (file:///) fetch may fail due to CORS. Run with a static server (e.g., `npx http-server .` or host on pages.dev).
+  </script>
 </body>
-      </html>
-      
+</html>
