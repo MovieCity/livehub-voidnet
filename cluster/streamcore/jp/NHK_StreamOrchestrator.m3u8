@@ -3,4 +3,4 @@
 #EXT-X-INDEPENDENT-SEGMENTS
 
 #EXT-X-STREAM-INF:BANDWIDTH=3217852,CODECS="avc1.4d4020,mp4a.40.2",RESOLUTION=1280x720
-https://masterpl.hls.nhkworld.jp/hls/w/live/master.m3u8
+https://cdn4.skygo.mn/live/disk1/NHK_World/HLSv3-FTA/NHK_World.m3u8
