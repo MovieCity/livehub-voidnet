@@ -1,28 +1,4 @@
 #EXTM3U
-#EXT-X-VERSION:4
-#EXT-X-INDEPENDENT-SEGMENTS
-#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="cc1",LANGUAGE="en",NAME="English",AUTOSELECT=YES,DEFAULT=YES,INSTREAM-ID="CC1"
-
-# 720p ~1.5 Mbps
-#EXT-X-STREAM-INF:BANDWIDTH=1559699,AVERAGE-BANDWIDTH=1559699,CODECS="avc1.4d401f,mp4a.40.5",RESOLUTION=1280x720,FRAME-RATE=29.970
-https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_1M.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=1559699,AVERAGE-BANDWIDTH=1559699,CODECS="avc1.4d401f,mp4a.40.5",RESOLUTION=1280x720,FRAME-RATE=29.970
-https://b-nhkwlive-ojp.nhkworld.jp/hls/live/2003459-b/nhkwlive-ojp-en/index_1M.m3u8
-
-# 360p ~1 Mbps
-#EXT-X-STREAM-INF:BANDWIDTH=992139,AVERAGE-BANDWIDTH=992139,CODECS="avc1.4d401f,mp4a.40.5",RESOLUTION=640x360,FRAME-RATE=29.970
-https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_600k.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=992139,AVERAGE-BANDWIDTH=992139,CODECS="avc1.4d401f,mp4a.40.5",RESOLUTION=640x360,FRAME-RATE=29.970
-https://b-nhkwlive-ojp.nhkworld.jp/hls/live/2003459-b/nhkwlive-ojp-en/index_600k.m3u8
-
-# 180p ~300 kbps
-#EXT-X-STREAM-INF:BANDWIDTH=294786,AVERAGE-BANDWIDTH=294786,CODECS="avc1.4d401f,mp4a.40.5",RESOLUTION=320x180,FRAME-RATE=29.970
-https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_200k.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=294786,AVERAGE-BANDWIDTH=294786,CODECS="avc1.4d401f,mp4a.40.5",RESOLUTION=320x180,FRAME-RATE=29.970
-https://b-nhkwlive-ojp.nhkworld.jp/hls/live/2003459-b/nhkwlive-ojp-en/index_200k.m3u8
-
-# Audio-only ~64 kbps
-#EXT-X-STREAM-INF:BANDWIDTH=70400,CODECS="mp4a.40.2"
-https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_audio.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=70400,CODECS="mp4a.40.2"
-https://b-nhkwlive-ojp.nhkworld.jp/hls/live/2003459-b/nhkwlive-ojp-en/index_audio.m3u8
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=3000000,RESOLUTION=1280x720,CODECS="avc1.640029,mp4a.40.2"
+https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8
