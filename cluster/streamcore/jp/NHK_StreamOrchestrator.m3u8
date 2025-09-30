@@ -1,11 +1,6 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-INDEPENDENT-SEGMENTS
-#EXT-X-ALLOW-CACHE:YES
 
-# This single-stream file points to NHK master playlist
-# The player will handle adaptive streams automatically
+#EXT-X-STREAM-INF:BANDWIDTH=3217852,CODECS="avc1.4d4020,mp4a.40.2",RESOLUTION=1280x720
 https://masterpl.hls.nhkworld.jp/hls/w/live/master.m3u8
-
-# Optional: Target duration (player-friendly)
-#EXT-X-TARGETDURATION:10
