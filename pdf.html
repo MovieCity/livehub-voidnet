@@ -50,23 +50,31 @@
     role="uploadcare-uploader"
     data-public-key="6c6a89778fc826464490"
     data-accept-types="application/pdf"
+    data-images-only="false"
     id="uploader"
   />
 
   <div id="output"></div>
 
   <script>
+    // Get the widget instance
     const widget = uploadcare.Widget('#uploader');
 
-    widget.onUploadComplete(fileInfo => {
-      const pdfUrl = fileInfo.cdnUrl; // Original PDF, no transforms
+    // Automatically open the widget on page load (optional)
+    // widget.openDialog();
 
+    // Handle upload complete
+    widget.onUploadComplete(fileInfo => {
+      const pdfUrl = fileInfo.cdnUrl; // original PDF, no conversion
+
+      // Show URL + copy button + open link
       document.getElementById('output').innerHTML = `
         <pre id="urlBox">${pdfUrl}</pre>
         <button class="copy-btn" id="copyBtn">Copy URL</button>
         <a class="pdf-link" href="${pdfUrl}" target="_blank">Open PDF</a>
       `;
 
+      // Copy URL handler
       document.getElementById('copyBtn').addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(pdfUrl);
