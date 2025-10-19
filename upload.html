@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Uploadcare — WebP + Copy URL</title>
+  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js" defer></script>
+
+  <!-- Hardcoded Uploadcare public key -->
+  <script>UPLOADCARE_PUBLIC_KEY = "6c6a89778fc826464490";</script>
+
+  <style>
+    body {
+      font-family: system-ui, Arial;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 12px;
+      color: #222;
+    }
+    h2 { color: #d63384; }
+    img.preview {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin-top: 16px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    pre {
+      background: #f6f6f6;
+      padding: 8px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    button.copy-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      background: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button.copy-btn:hover { background: #ff85c1; }
+  </style>
+</head>
+<body>
+  <h2>Upload → Convert to HQ WebP → Copy URL</h2>
+
+  <input
+    type="hidden"
+    role="uploadcare-uploader"
+    data-public-key="6c6a89778fc826464490"
+    data-images-only="true"
+    id="uploader"
+  />
+
+  <div id="output"></div>
+
+  <script>
+    const widget = uploadcare.Widget('#uploader');
+    widget.input.fileUploader.opts.imageShrink = ''; // no client-side resizing
+
+    widget.onUploadComplete((fileInfo) => {
+      const origUrl = fileInfo.cdnUrl;
+      const webpUrl = `${origUrl}-/format/webp/-/quality/best/`;
+
+      // Display info + Copy button
+      document.getElementById('output').innerHTML = `
+        <strong>UUID:</strong> ${fileInfo.uuid}<br>
+        <strong>WebP URL:</strong>
+        <pre id="urlBox">${webpUrl}</pre>
+        <button class="copy-btn" id="copyBtn">Copy URL</button>
+        <img class="preview" src="${webpUrl}" alt="WebP Preview">
+      `;
+
+      // Copy to clipboard handler
+      document.getElementById('copyBtn').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(webpUrl);
+          const btn = document.getElementById('copyBtn');
+          btn.textContent = "Copied!";
+          btn.style.background = "#28a745";
+          setTimeout(() => {
+            btn.textContent = "Copy URL";
+            btn.style.background = "#ff69b4";
+          }, 1500);
+        } catch (err) {
+          alert('Failed to copy. You can copy manually:\n' + webpUrl);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
