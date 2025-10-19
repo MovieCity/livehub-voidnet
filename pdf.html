@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Uploadcare PDF Uploader</title>
+
+  <!-- Uploadcare widget -->
+  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js" defer></script>
+  <script>UPLOADCARE_PUBLIC_KEY = "6c6a89778fc826464490";</script>
+
+  <style>
+    body {
+      font-family: system-ui, Arial;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 12px;
+      color: #222;
+    }
+    h2 { color: #d63384; }
+    pre {
+      background: #f6f6f6;
+      padding: 8px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    button.copy-btn {
+      margin-top: 8px;
+      padding: 8px 14px;
+      background: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    a.pdf-link {
+      display: block;
+      margin-top: 8px;
+      color: #007bff;
+      text-decoration: none;
+    }
+    a.pdf-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h2>Upload PDF → Original → Copy URL</h2>
+
+  <!-- Uploadcare uploader -->
+  <input
+    type="hidden"
+    role="uploadcare-uploader"
+    data-public-key="6c6a89778fc826464490"
+    data-accept-types="application/pdf"
+    id="uploader"
+  />
+
+  <div id="output"></div>
+
+  <script>
+    const widget = uploadcare.Widget('#uploader');
+
+    widget.onUploadComplete(fileInfo => {
+      const pdfUrl = fileInfo.cdnUrl; // Original PDF, no transforms
+
+      document.getElementById('output').innerHTML = `
+        <pre id="urlBox">${pdfUrl}</pre>
+        <button class="copy-btn" id="copyBtn">Copy URL</button>
+        <a class="pdf-link" href="${pdfUrl}" target="_blank">Open PDF</a>
+      `;
+
+      document.getElementById('copyBtn').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(pdfUrl);
+          alert("Copied PDF URL: " + pdfUrl);
+        } catch (err) {
+          alert("Failed to copy. You can copy manually:\n" + pdfUrl);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
